@@ -1,0 +1,278 @@
+{
+  "name": "watchdog",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -320,
+        -96
+      ],
+      "id": "c0fc8516-d0b9-4bd7-b166-dd70f8e31393",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      Incident_ID: \"INC-001\",\n      Severity: \"HIGH\",\n      Issue: \"Incorrect answer\",\n      Recommended_Action: \"Review answer for accuracy\",\n      Status: \"Open\",\n      Incident_Summary: \"The agent returned an incorrect answer. Human review is required.\"\n    }\n  },\n  {\n    json: {\n      Incident_ID: \"INC-002\",\n      Severity: \"MEDIUM\",\n      Issue: \"Missing citation\",\n      Recommended_Action: \"Add and verify citation\",\n      Status: \"Open\",\n      Incident_Summary: \"The response lacks a supporting citation. Verify the source.\"\n    }\n  },\n  {\n    json: {\n      Incident_ID: \"INC-003\",\n      Severity: \"MEDIUM\",\n      Issue: \"Wrong citation\",\n      Recommended_Action: \"Verify and replace citation\",\n      Status: \"Open\",\n      Incident_Summary: \"The response contains an incorrect citation. Check and replace it.\"\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        -96,
+        -96
+      ],
+      "id": "92792b51-d734-4e89-9e6c-0c5784975717",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 3
+          },
+          "conditions": [
+            {
+              "id": "04b59832-0ed4-4ad8-af54-ba5668b9f533",
+              "leftValue": "={{ $json.Severity }}",
+              "rightValue": "HIGH",
+              "operator": {
+                "type": "string",
+                "operation": "equals",
+                "name": "filter.operator.equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.3,
+      "position": [
+        576,
+        -96
+      ],
+      "id": "12106b2e-a4ef-406b-aa57-2fd0b6df1e0b",
+      "name": "If"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1ed97691-8c12-40ec-abd3-c0b92715886f",
+              "name": "Incident_Summary",
+              "value": "HIGH severity incident detected. Human review is required. Check the reported issue and verify the recommended action before closing the incident.",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.5,
+      "position": [
+        1024,
+        -176
+      ],
+      "id": "7b6fb8d6-6d76-40fa-8a47-22f63520ed9a",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "fromEmail": "suryaprakashmathe@gmail.com",
+        "toEmail": "suryaprakashmathe@gmail.com",
+        "html": "=<h2>AI Agent Watchdog Alert</h2>\n<p><strong>Severity:</strong> HIGH</p>\n<p><strong>Incident:</strong> {{ $json.Incident_ID }}</p>\n<p><strong>Issue:</strong> {{ $json.Issue }}</p>\n<p><strong>Summary:</strong> {{ $json.Incident_Summary }}</p>\n<p><strong>Recommended Action:</strong> {{ $json.Recommended_Action }}</p>\n<p><strong>Status:</strong> {{ $json.Status }}</p>",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.emailSend",
+      "typeVersion": 2.1,
+      "position": [
+        1248,
+        -176
+      ],
+      "id": "925ee627-76ec-4bd1-b70c-ee874d10abb3",
+      "name": "Send an Email",
+      "webhookId": "41319341-876d-4434-b2f0-2b6277584985",
+      "credentials": {
+        "smtp": {
+          "id": "5WVC3irWUXIJ2fYb",
+          "name": "SMTP account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 59
+            }
+          ]
+        }
+      },
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.4,
+      "position": [
+        1472,
+        -176
+      ],
+      "id": "30575b82-a282-4214-b6a5-00acc62ef4fc",
+      "name": "Schedule Trigger"
+    },
+    {
+      "parameters": {
+        "operation": "download",
+        "fileId": {
+          "__rl": true,
+          "value": "1EGY40vOiuSZ6cWaOnMWO1ATJzH2ngmSi",
+          "mode": "list",
+          "cachedResultName": "ai_agent_incidents (2).csv",
+          "cachedResultUrl": "https://drive.google.com/file/d/1EGY40vOiuSZ6cWaOnMWO1ATJzH2ngmSi/view?usp=drivesdk"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        128,
+        -96
+      ],
+      "id": "16737ecb-8044-4f23-a49f-fe7c33d172ae",
+      "name": "Download file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "TNngwzN8s1DF6eiX",
+          "name": "Google Drive account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.extractFromFile",
+      "typeVersion": 1.1,
+      "position": [
+        352,
+        -96
+      ],
+      "id": "beac43f7-4d73-4ffb-8008-947789b86a4d",
+      "name": "Extract from File"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.removeDuplicates",
+      "typeVersion": 2,
+      "position": [
+        800,
+        -96
+      ],
+      "id": "eaaa4da7-e6dc-4b17-af1d-e96ddc5a83f9",
+      "name": "Remove Duplicates"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Remove Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send an Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1",
+    "binaryMode": "separate",
+    "timeSavedMode": "fixed",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false
+  },
+  "versionId": "27f75e75-bb5a-47a0-a287-f3c08048b317",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "dd6d45e075b8a673348080afb71d6bb629c01220016e422f90aad12162b36a7f"
+  },
+  "nodeGroups": [],
+  "id": "BZLKpwBYhEsTfShg",
+  "tags": []
+}
